@@ -2,6 +2,15 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Bad-deploy crash loop scenario: when SIMULATE_CRASH=true, the process
+// exits immediately on startup so the platform keeps restarting it,
+// producing a real crash loop (fix = roll back to the prior revision).
+if (process.env.SIMULATE_CRASH === 'true') {
+    console.error('[FATAL] Simulated bad deploy: crashing on startup (SIMULATE_CRASH=true)');
+    process.exit(1);
+}
+
+
 // In-memory "broken" state. This is the entire simulated bug:
 // a flag that, once set, makes the main endpoint throw.
 // Restarting the container clears it — this is deliberate, so that
